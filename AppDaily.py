@@ -11,7 +11,7 @@ end = today + timedelta(days=1)
 df = yf.download(tickers="^NSEI",
                  start=start,
                  end=end,
-                 interval="60m",
+                 interval="1d",
                  ignore_tz=True,
                  multi_level_index=False)
 
