@@ -4,6 +4,7 @@ import talib as ta
 from pushbullet import Pushbullet 
 
 
+
 today = datetime.today()
 start = today - timedelta(days=20)
 end = today + timedelta(days=1)
@@ -16,7 +17,7 @@ df = yf.download(tickers="^NSEI",
                  multi_level_index=False)
 
 df.drop("Volume",axis=1,inplace=True)
-
+print(df)
 talib_pattern_signals = {
     "CDL2CROWS": "Bearish",
     "CDL3BLACKCROWS": "Bearish",
@@ -89,7 +90,7 @@ for i in talib_pattern_signals.keys():
 df.drop(['Open','High','Low','Close'],axis=1,inplace=True)
 
 l = []
-for k,v in zip(df.iloc[-1].keys(),df.iloc[-1].values):
+for k,v in zip(df.iloc[-2].keys(),df.iloc[-2].values):
     if v==100:
         k = k.replace("CDL","")
         l.append(f"{k} : Bullish")
@@ -100,7 +101,7 @@ for k,v in zip(df.iloc[-1].keys(),df.iloc[-1].values):
         pass
 
 
-t = df.iloc[-1:].index
+t = df.iloc[-2:].index
 
 pb = Pushbullet("o.QGYQN73kbVFUOHG7BAfa3onk5gbF0UjC") 
 print(f"@ {t[0]}")
@@ -108,7 +109,7 @@ print(f"@ {t[0]}")
 
 if len(l)==0:
     # print("No pattern detected!")
-    pb.push_note(title='Nifty Status',body="No pattern detected!")
+    pb.push_note(title='CP-15m',body=f"No pattern detected!\n@ {t[0]}")
 else:
     text = ''
     for i in l:

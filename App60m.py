@@ -100,7 +100,7 @@ for k,v in zip(df.iloc[-1].keys(),df.iloc[-1].values):
         pass
 
 
-t = df.iloc[-1:].index
+t = df.iloc[-2].index
 
 pb = Pushbullet("o.QGYQN73kbVFUOHG7BAfa3onk5gbF0UjC") 
 print(f"@ {t[0]}")

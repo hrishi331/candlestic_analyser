@@ -2,21 +2,50 @@ import yfinance as yf
 from datetime import datetime,timedelta
 import talib as ta
 from pushbullet import Pushbullet 
+import pandas as pd
+import streamlit as st
 
 
-today = datetime.today()
-start = today - timedelta(days=20)
-end = today + timedelta(days=1)
+st.header("Candlestick Pattern Detector".upper())
 
-df = yf.download(tickers="^NSEI",
+# Select script
+script = st.radio(label="Select script" , options=['NIFTY 50','NIFTY BANK'])
+script_dict = {'NIFTY 50' : "^NSEI",'NIFTY BANK': "^NSEBANK"}
+
+
+# Select data window
+st.write("Select time window")
+col1,col2 = st.columns(spec=2)
+start = col1.date_input("From [inclusive]")
+end = col2.date_input("To [exclusive]")
+
+if start==end:
+    st.stop()
+else:
+    pass
+
+# Select time frame 
+options1 = ['5m','15m','30m','1h','1d','1wk']
+
+
+timeframe = st.radio(label="Select time-frame",options=options1)
+
+
+df = yf.download(tickers=script_dict[script],
                  start=start,
                  end=end,
-                 interval="1d",
+                 interval=timeframe,
                  ignore_tz=True,
                  multi_level_index=False)
 
-df.drop("Volume",axis=1,inplace=True)
+if df.shape[0]>0:
+    st.write("Data retrieved!")
+else:
+    st.write("Data window too large!")
+    st.stop()
 
+df.drop("Volume",axis=1,inplace=True)
+print(df)
 talib_pattern_signals = {
     "CDL2CROWS": "Bearish",
     "CDL3BLACKCROWS": "Bearish",
@@ -46,7 +75,6 @@ talib_pattern_signals = {
     "CDLHARAMI": "Both",
     "CDLHARAMICROSS": "Both",
     "CDLHIGHWAVE": "Neutral",
-    "CDLHIKKAKE": "Both",
     "CDLHIKKAKEMOD": "Both",
     "CDLHOMINGPIGEON": "Bullish",
     "CDLIDENTICAL3CROWS": "Bearish",
@@ -88,34 +116,47 @@ for i in talib_pattern_signals.keys():
 
 df.drop(['Open','High','Low','Close'],axis=1,inplace=True)
 
-l = []
-for k,v in zip(df.iloc[-1].keys(),df.iloc[-1].values):
-    if v==100:
-        k = k.replace("CDL","")
-        l.append(f"{k} : Bullish")
-    elif v==-100:
-        k = k.replace("CDL","")
-        l.append(f"{k} : Bearish")
-    else:
-        pass
+latest_index =df.iloc[-2:].index
+t = []
+p = []
+for i in df.index:
+    for j in df:
+        val = df.loc[i,j]
+        if val==100:
+            # print(f"{i} : {j.replace("CDL","")} - Bullish")
+            t.append(i)
+            if talib_pattern_signals[j] == "Both":
+                p.append(f"{j.replace("CDL","")} - Bullish")
+            else:
+                p.append(f"{j.replace("CDL","")} - {talib_pattern_signals[j]}")
+        elif val == -100:
+            # print(f"{i} : {j.replace("CDL","")} - Bearish")
+            t.append(i)
+            if talib_pattern_signals[j] == "Both":
+                p.append(f"{j.replace("CDL","")} - Bearish")
+            else:
+                p.append(f"{j.replace("CDL","")} - {talib_pattern_signals[j]}")
+        else:
+            # print(f"{i} : No Pattern")
+            t.append(i)
+            p.append("No Pattern")
+
+table = pd.DataFrame({"Timestamp" : t , "Pattern" : p})
+table.drop_duplicates(inplace=True)
+options2 = table['Timestamp'].iloc[::-1].unique()
 
 
-t = df.iloc[-1:].index
-
-pb = Pushbullet("o.QGYQN73kbVFUOHG7BAfa3onk5gbF0UjC") 
-print(f"@ {t[0]}")
+ts = st.selectbox(label="Find candlestick pattern at specific timestamp : ",options=options2)
+data = table[table['Timestamp']==ts]['Pattern'].values
 
 
-if len(l)==0:
-    # print("No pattern detected!")
-    pb.push_note(title='Nifty Status',body="No pattern detected!")
+
+if len(data)>1:
+    for i in data:
+        if i=="No Pattern":
+            pass
+        else:
+            st.write(i)
 else:
-    text = ''
-    for i in l:
-        text = text + i + '\n'
-        
-    text = text + f"@ {t[0]}"
-    # print(text)
-    pb.push_note(title='CP-D' , body=text)
-
-
+    for i in data:
+        st.write(i)
