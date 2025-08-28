@@ -89,7 +89,7 @@ for i in talib_pattern_signals.keys():
 df.drop(['Open','High','Low','Close'],axis=1,inplace=True)
 
 l = []
-for k,v in zip(df.iloc[-1].keys(),df.iloc[-1].values):
+for k,v in zip(df.iloc[-2].keys(),df.iloc[-2].values):
     if v==100:
         k = k.replace("CDL","")
         l.append(f"{k} : Bullish")
