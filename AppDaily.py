@@ -5,7 +5,7 @@ from pushbullet import Pushbullet
 
 
 today = datetime.today()
-start = today - timedelta(days=20)
+start = today - timedelta(days=40)
 end = today + timedelta(days=1)
 
 df = yf.download(tickers="^NSEI",
@@ -108,7 +108,7 @@ print(f"@ {t[0]}")
 
 if len(l)==0:
     # print("No pattern detected!")
-    pb.push_note(title='Nifty Status',body="No pattern detected!")
+    pb.push_note(title='CP-D',body="No pattern detected!")
 else:
     text = ''
     for i in l:
