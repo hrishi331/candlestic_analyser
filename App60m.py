@@ -108,7 +108,7 @@ print(f"@ {t[0]}")
 
 if len(l)==0:
     # print("No pattern detected!")
-    pb.push_note(title='Nifty Status',body="No pattern detected!")
+    pb.push_note(title='CP-60m',body="No pattern detected!")
 else:
     text = ''
     for i in l:
