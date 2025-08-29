@@ -2,6 +2,14 @@ import yfinance as yf
 from datetime import datetime,timedelta
 import talib as ta
 from pushbullet import Pushbullet 
+import requests
+
+# For telegram bot messages
+BOT_TOKEN = "<your access token by BOTFATHER>"# replace with your own
+CHAT_ID = "1163765818"  # Replace with your chat ID
+url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+
 
 
 today = datetime.today()
@@ -108,7 +116,14 @@ print(f"@ {t[0]}")
 
 if len(l)==0:
     # print("No pattern detected!")
-    pb.push_note(title='CP-60m',body="No pattern detected!")
+    message="No pattern detected!"
+    payload = {
+    "chat_id": CHAT_ID,
+    "text": message
+    }
+    r = requests.post(url, data=payload)
+    print("Message sent!" if r.status_code == 200 else "Failed:", r.text)
+
 else:
     text = ''
     for i in l:
@@ -116,6 +131,11 @@ else:
         
     text = text + f"@ {t[0]}"
     # print(text)
-    pb.push_note(title='CP-60m' , body=text)
-
+    message=text
+    payload = {
+    "chat_id": CHAT_ID,
+    "text": message
+    }
+    r = requests.post(url, data=payload)
+    print("Message sent!" if r.status_code == 200 else "Failed:", r.text)
 
