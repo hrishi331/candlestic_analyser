@@ -5,7 +5,7 @@ import requests
 
 # For telegram bot messages
 BOT_TOKEN = "<your access token by BOTFATHER>" # replace with your own
-CHAT_ID = "1163765818"  # Replace with your chat ID
+CHAT_ID = "<your chatID>"  # Replace with your chat ID
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
 today = datetime.today()
